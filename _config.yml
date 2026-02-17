@@ -5,3 +5,7 @@ timezone: Asia/Seoul
 
 plugins:
   - jekyll-feed
+
+header_pages:
+  - index.md
+  - about.md
