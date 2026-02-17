@@ -1,0 +1,7 @@
+title: "Independent AI Lab"
+description: "Independent AI lab & zero-cost digital business experiments"
+theme: minima
+timezone: Asia/Seoul
+
+plugins:
+  - jekyll-feed
