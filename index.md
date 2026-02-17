@@ -6,7 +6,8 @@ title: Independent AI Lab
 ## 🚀 AI 자동화로 수익 구조 만들기
 
 Independent AI Lab은  
-AI 자동화 실험, 수익형 구조 설계, 콘텐츠 제작 전략을 연구합니다.
+AI 자동화와 디지털 전략을 통해 지속 가능한 수익 구조를 설계합니다.
+
 
 ---
 
