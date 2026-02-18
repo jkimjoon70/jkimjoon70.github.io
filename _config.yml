@@ -1,11 +1,123 @@
-title: "Independent AI Lab"
-description: "Independent AI lab & zero-cost digital business experiments"
-theme: minima
-timezone: Asia/Seoul
+# 🎯 업그레이드된 Jekyll 블로그 설정
+title: "독립 AI 실험실"
+description: "무비용 디지털 비즈니스 실험 & AI 자동화 블로그"
+url: "https://jkimjoon70.github.io"
+baseurl: ""
 
+# 👤 작성자 정보
+author:
+  name: "김준"
+  email: "jkimjoon70@gmail.com"
+  bio: "독립 AI 연구자 & 디지털 비즈니스 실험가"
+  avatar: "/assets/images/profile.jpg"
+  location: "Seoul, Korea"
+
+# 📱 소셜 미디어
+social:
+  github: "jkimjoon70"
+  email: "jkimjoon70@gmail.com"
+  linkedin: "jkimjoon70"
+
+# 🎨 테마 및 플러그인
+theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-paginate
+  - jekyll-archives
 
-header_pages:
-  - index.md
-  - about.md
+# 📄 페이지네이션
+paginate: 8
+paginate_path: "/page:num/"
+
+# 📝 마크다운 설정
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: true
+
+# 🔍 SEO 및 분석
+google_analytics: "G-XXXXXXXXXX"
+google_site_verification: "your-verification-code"
+naver_site_verification: "your-naver-verification"
+
+# 🤖 AI 자동화 설정
+automation:
+  enabled: true
+  content_generation:
+    frequency: "daily"
+    topics:
+      - "AI 기술 동향"
+      - "디지털 비즈니스"
+      - "자동화 도구"
+      - "생산성 향상"
+      - "무료 도구 리뷰"
+  seo_optimization: true
+  social_sharing: true
+
+# 📂 컬렉션 설정
+collections:
+  experiments:
+    output: true
+    permalink: /:collection/:name/
+  tools:
+    output: true
+    permalink: /:collection/:name/
+
+# 🚫 제외 파일
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - automation/
+  - .github/
+  - README.md
+
+# 📊 사이트 통계
+stats:
+  show_reading_time: true
+  show_post_count: true
+  show_category_count: true
+
+# 💰 수익화 설정
+monetization:
+  google_adsense: "ca-pub-XXXXXXXXXX"
+  affiliate_disclosure: true
+  
+# 🌐 다국어 지원
+lang: ko
+timezone: Asia/Seoul
+
+# ⚙️ 빌드 설정
+safe: true
+incremental: false
+lsi: false
+excerpt_separator: "\n\n"
+future: false
+unpublished: false
+
+# 🎨 커스텀 변수
+custom:
+  brand_color: "#3498db"
+  accent_color: "#2ecc71"
+  background_color: "#f8f9fa"
+  text_color: "#2c3e50"
+  
+# 📧 연락처 폼
+contact:
+  enabled: true
+  email: "jkimjoon70@gmail.com"
+  
+# 🔔 알림 설정
+notifications:
+  new_post_alert: true
+  weekly_summary: true
