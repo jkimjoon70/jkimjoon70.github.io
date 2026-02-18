@@ -1,0 +1,39 @@
+name: AI Content Automation
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 오전 9시 (UTC 0시)
+  workflow_dispatch:
+
+jobs:
+  generate-content:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        pip install openai requests python-frontmatter
+    
+    - name: Generate AI Content
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        python automation/content-generator.py
+    
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git diff --staged --quiet || git commit -m "🤖 AI 자동 포스트 생성: $(date +'%Y-%m-%d')"
+        git push
