@@ -1,0 +1,156 @@
+# Site settings - 기존 설정 + 개선사항
+title: "Independent AI Lab"
+email: your-email@example.com
+description: >- # this means to ignore newlines until "baseurl:"
+  Independent AI lab & zero-cost digital business experiments.
+  Exploring artificial intelligence, automation, and digital innovation.
+
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://jkimjoon70.github.io" # the base hostname & protocol for your site
+
+# Social media and author info
+twitter_username: jkimjoon70
+github_username: jkimjoon70
+linkedin_username: jkimjoon70 # 추가 권장
+
+# Author information
+author:
+  name: "jkimjoon70"
+  email: "your-email@example.com"
+  bio: "AI Researcher & Digital Experimenter"
+  avatar: "/assets/images/avatar.jpg" # 프로필 이미지 추가 권장
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-paginate
+  - jekyll-gist
+  - jekyll-github-metadata
+
+# Pagination
+paginate: 5
+paginate_path: "/blog/page:num/"
+
+# Collections for organizing content
+collections:
+  experiments:
+    output: true
+    permalink: /:collection/:name/
+  projects:
+    output: true
+    permalink: /:collection/:name/
+  ai-models:
+    output: true
+    permalink: /:collection/:name/
+
+# Default layouts for different content types
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      comments: true
+      share: true
+  - scope:
+      path: ""
+      type: "experiments"
+    values:
+      layout: "experiment"
+  - scope:
+      path: ""
+      type: "projects"
+    values:
+      layout: "project"
+
+# SEO and social media settings
+social:
+  name: jkimjoon70
+  links:
+    - https://twitter.com/jkimjoon70
+    - https://github.com/jkimjoon70
+    - https://linkedin.com/in/jkimjoon70
+
+# Analytics (권장 추가)
+google_analytics: # GA4 측정 ID를 여기에 추가
+# google_tag_manager: # GTM ID (선택사항)
+
+# Comments system (Utterances 권장)
+comments:
+  provider: "utterances"
+  utterances:
+    theme: "github-light"
+    issue_term: "pathname"
+    repo: "jkimjoon70/jkimjoon70.github.io"
+
+# Search functionality
+search: true
+search_full_content: false
+search_provider: lunr
+
+# Performance optimizations
+sass:
+  style: compressed
+  sass_dir: _sass
+
+# Compression
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  startings: []
+  blanklines: false
+  profile: false
+
+# Exclude from processing
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - automation/
+  - "*.log"
+  - README.md
+  - LICENSE
+  - package.json
+  - package-lock.json
+
+# Include files
+include:
+  - _pages
+  - .htaccess
+
+# Timezone
+timezone: Asia/Seoul
+
+# Language
+lang: ko-KR
+
+# Custom variables for your site
+lab:
+  mission: "Democratizing AI through open research and zero-cost experiments"
+  focus_areas:
+    - "Machine Learning"
+    - "Natural Language Processing"
+    - "Computer Vision"
+    - "Automation"
+    - "Digital Business Models"
+
+# Feature flags
+features:
+  dark_mode: true
+  search: true
+  comments: true
+  analytics: true
+  pwa: false # PWA 기능 (향후 활성화)

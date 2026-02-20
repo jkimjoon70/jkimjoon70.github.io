@@ -1,0 +1,510 @@
+/* assets/css/main.scss */
+/* 기존 스타일 + 성능 최적화 */
+
+---
+---
+
+@import "minima";
+
+/* ==========================================================================
+   성능 최적화 CSS
+   ========================================================================== */
+
+/* Critical CSS - 첫 화면 렌더링에 필요한 스타일 */
+.critical {
+  /* 기본 레이아웃 */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* 헤더 최적화 */
+  .site-header {
+    border-top: 5px solid #424242;
+    border-bottom: 1px solid #e8e8e8;
+    min-height: 55.95px;
+    position: relative;
+    background-color: #fff;
+    z-index: 100;
+  }
+
+  /* 네비게이션 최적화 */
+  .site-nav {
+    position: absolute;
+    top: 9px;
+    right: 15px;
+    background-color: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 5px;
+    text-align: right;
+  }
+
+  /* 메인 콘텐츠 영역 */
+  .page-content {
+    padding: 30px 0;
+    flex: 1 0 auto;
+  }
+
+  /* 푸터 */
+  .site-footer {
+    border-top: 1px solid #e8e8e8;
+    padding: 30px 0;
+    background-color: #f8f9fa;
+  }
+}
+
+/* ==========================================================================
+   성능 최적화 기법
+   ========================================================================== */
+
+/* GPU 가속 활용 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+}
+
+/* 애니메이션 최적화 */
+.smooth-animation {
+  will-change: transform, opacity;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 이미지 최적화 */
+.optimized-image {
+  max-width: 100%;
+  height: auto;
+  loading: lazy;
+  decoding: async;
+}
+
+/* WebP 지원 */
+.webp .hero-image {
+  background-image: url('../images/hero.webp');
+}
+
+.no-webp .hero-image {
+  background-image: url('../images/hero.jpg');
+}
+
+/* ==========================================================================
+   AI Lab 테마 스타일
+   ========================================================================== */
+
+/* 색상 변수 */
+:root {
+  --primary-color: #2196F3;
+  --secondary-color: #FF9800;
+  --accent-color: #4CAF50;
+  --text-color: #333;
+  --bg-color: #fff;
+  --border-color: #e8e8e8;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  /* 다크 모드 색상 */
+  --dark-primary-color: #1976D2;
+  --dark-secondary-color: #F57C00;
+  --dark-accent-color: #388E3C;
+  --dark-text-color: #e0e0e0;
+  --dark-bg-color: #1a1a1a;
+  --dark-border-color: #404040;
+  --dark-shadow-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-color: var(--dark-text-color);
+    --bg-color: var(--dark-bg-color);
+    --border-color: var(--dark-border-color);
+    --shadow-color: var(--dark-shadow-color);
+  }
+  
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+  
+  .site-header {
+    background-color: var(--bg-color);
+    border-bottom-color: var(--border-color);
+  }
+  
+  .site-footer {
+    background-color: #2d2d2d;
+    border-top-color: var(--border-color);
+  }
+}
+
+/* ==========================================================================
+   컴포넌트 스타일
+   ========================================================================== */
+
+/* AI 실험 카드 */
+.experiment-card {
+  background: var(--bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.experiment-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.experiment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px var(--shadow-color);
+  border-color: var(--primary-color);
+}
+
+/* 프로젝트 그리드 */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin: 32px 0;
+}
+
+/* 기술 태그 */
+.tech-tag {
+  display: inline-block;
+  background: var(--primary-color);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.85em;
+  font-weight: 500;
+  margin: 2px 4px 2px 0;
+  transition: background-color 0.2s ease;
+}
+
+.tech-tag:hover {
+  background: var(--dark-primary-color);
+}
+
+/* 상태 인디케이터 */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-indicator.active {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.status-indicator.planning {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-indicator.completed {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+/* 프로그레스 바 */
+.progress-container {
+  background: #f0f0f0;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 8px;
+  margin: 12px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-image: linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.2) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 50px 50px;
+  animation: move 2s linear infinite;
+}
+
+@keyframes move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 50px 50px;
+  }
+}
+
+/* ==========================================================================
+   반응형 디자인
+   ========================================================================== */
+
+/* 태블릿 */
+@media screen and (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .experiment-card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .site-nav {
+    position: static;
+    float: none;
+    display: block;
+    text-align: left;
+  }
+}
+
+/* 모바일 */
+@media screen and (max-width: 480px) {
+  .page-content {
+    padding: 20px 0;
+  }
+  
+  .experiment-card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .tech-tag {
+    font-size: 0.8em;
+    padding: 3px 8px;
+  }
+}
+
+/* ==========================================================================
+   인쇄 스타일
+   ========================================================================== */
+
+@media print {
+  .site-nav,
+  .site-footer,
+  .experiment-card:hover {
+    display: none;
+  }
+  
+  .experiment-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+  
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+}
+
+/* ==========================================================================
+   접근성 개선
+   ========================================================================== */
+
+/* 포커스 스타일 */
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .experiment-card {
+    border-width: 3px;
+  }
+  
+  .tech-tag {
+    border: 2px solid currentColor;
+  }
+}
+
+/* 모션 감소 설정 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================================
+   유틸리티 클래스
+   ========================================================================== */
+
+/* 텍스트 유틸리티 */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* 마진/패딩 유틸리티 */
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.mt-5 { margin-top: 3rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mb-5 { margin-bottom: 3rem; }
+
+/* 플렉스 유틸리티 */
+.d-flex { display: flex; }
+.flex-column { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.justify-content-center { justify-content: center; }
+.justify-content-between { justify-content: space-between; }
+.align-items-center { align-items: center; }
+
+/* 그리드 유틸리티 */
+.d-grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+.gap-4 { gap: 1.5rem; }
+
+/* 숨김 유틸리티 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   성능 최적화 - 지연 로딩 스타일
+   ========================================================================== */
+
+/* 지연 로딩 이미지 */
+.lazy-image {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.lazy-image.loaded {
+  opacity: 1;
+}
+
+/* 스켈레톤 로딩 */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ==========================================================================
+   커스텀 스크롤바 (Webkit)
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+/* ==========================================================================
+   코드 하이라이팅 최적화
+   ========================================================================== */
+
+.highlight {
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+  margin: 16px 0;
+  border-left: 4px solid var(--primary-color);
+}
+
+.highlight pre {
+  margin: 0;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+/* 다크 모드 코드 블록 */
+@media (prefers-color-scheme: dark) {
+  .highlight {
+    background: #2d2d2d;
+    color: #e0e0e0;
+  }
+}

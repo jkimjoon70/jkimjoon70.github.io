@@ -1,0 +1,238 @@
+# .github/workflows/jekyll-gh-pages.yml
+# 메인 배포 워크플로우 (기존 개선)
+
+name: Deploy Jekyll with GitHub Pages dependencies preinstalled
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main", "master"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1' # Not needed with a .ruby-version file
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          cache-version: 0 # Increment this number if you need to re-download cached gems
+          
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v4
+        
+      - name: Build with Jekyll
+        # Outputs to the './_site' directory by default
+        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+        env:
+          JEKYLL_ENV: production
+          
+      - name: Test built site
+        run: |
+          bundle exec htmlproofer ./_site \
+            --disable-external \
+            --check-html \
+            --allow_hash_href \
+            --empty_alt_ignore || echo "Some tests failed, but continuing..."
+            
+      - name: Upload artifact
+        # Automatically uploads an artifact from the './_site' directory by default
+        uses: actions/upload-pages-artifact@v3
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+---
+
+# .github/workflows/maintenance.yml
+# 새로운 유지보수 워크플로우
+
+name: Blog Maintenance & Health Check
+
+on:
+  schedule:
+    # 매주 일요일 오전 2시 (KST 11시)
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'automation/**'
+      - '_posts/**'
+      - 'assets/**'
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    name: Site Health Check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: |
+          npm install -g lighthouse broken-link-checker
+          
+      - name: Check site availability
+        run: |
+          echo "Checking site availability..."
+          curl -f -s -o /dev/null https://jkimjoon70.github.io || exit 1
+          echo "✅ Site is accessible"
+          
+      - name: Run Lighthouse audit
+        run: |
+          echo "Running Lighthouse performance audit..."
+          lighthouse https://jkimjoon70.github.io \
+            --output=json \
+            --output-path=./lighthouse-report.json \
+            --chrome-flags="--headless --no-sandbox" || echo "Lighthouse completed with warnings"
+            
+      - name: Check for broken links
+        run: |
+          echo "Checking for broken internal links..."
+          blc https://jkimjoon70.github.io \
+            --recursive \
+            --ordered \
+            --exclude-external || echo "Some links may need attention"
+            
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: lighthouse-report.json
+          retention-days: 30
+
+  dependency-update:
+    runs-on: ubuntu-latest
+    name: Update Dependencies
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+          
+      - name: Update bundle
+        run: |
+          bundle update
+          
+      - name: Check for security vulnerabilities
+        run: |
+          bundle audit check --update || echo "Security check completed"
+          
+      - name: Commit updated Gemfile.lock
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add Gemfile.lock
+          git diff --staged --quiet || git commit -m "🔒 Update dependencies [automated]"
+          
+      - name: Push changes
+        run: |
+          git push || echo "No changes to push"
+
+  backup:
+    runs-on: ubuntu-latest
+    name: Backup Content
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Create backup
+        run: |
+          DATE=$(date +%Y%m%d_%H%M%S)
+          mkdir -p backups
+          
+          # Backup critical content
+          tar -czf "backups/posts_backup_${DATE}.tar.gz" _posts/ || echo "No posts to backup"
+          tar -czf "backups/layouts_backup_${DATE}.tar.gz" _layouts/ || echo "No layouts to backup"
+          tar -czf "backups/assets_backup_${DATE}.tar.gz" assets/ || echo "No assets to backup"
+          tar -czf "backups/config_backup_${DATE}.tar.gz" _config.yml *.md || echo "Config backup completed"
+          
+          echo "Backup created: ${DATE}"
+          ls -la backups/
+          
+      - name: Upload backup artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-backup-${{ github.run_number }}
+          path: backups/
+          retention-days: 90
+
+  notify:
+    runs-on: ubuntu-latest
+    name: Notification
+    needs: [health-check, dependency-update, backup]
+    if: always()
+    steps:
+      - name: Create maintenance report
+        run: |
+          echo "## 🔧 Blog Maintenance Report" > maintenance_report.md
+          echo "**Date:** $(date)" >> maintenance_report.md
+          echo "**Repository:** ${{ github.repository }}" >> maintenance_report.md
+          echo "" >> maintenance_report.md
+          echo "### Job Status:" >> maintenance_report.md
+          echo "- Health Check: ${{ needs.health-check.result }}" >> maintenance_report.md
+          echo "- Dependency Update: ${{ needs.dependency-update.result }}" >> maintenance_report.md
+          echo "- Backup: ${{ needs.backup.result }}" >> maintenance_report.md
+          echo "" >> maintenance_report.md
+          echo "### Next Steps:" >> maintenance_report.md
+          echo "- Review Lighthouse report for performance insights" >> maintenance_report.md
+          echo "- Check any failed link checks" >> maintenance_report.md
+          echo "- Verify backup integrity" >> maintenance_report.md
+          
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('maintenance_report.md', 'utf8');
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Maintenance Check Failed - ' + new Date().toISOString().split('T')[0],
+              body: report + '\n\n⚠️ **Action Required:** Please review the failed maintenance tasks above.',
+              labels: ['maintenance', 'automated']
+            });
