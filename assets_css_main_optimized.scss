@@ -1,0 +1,146 @@
+---
+---
+
+/* ==========================================================================
+   성능 최적화된 메인 CSS - 기존 assets/css/main.scss 교체용
+   ========================================================================== */
+
+@import "minima";
+
+/* Critical CSS - 첫 화면 렌더링 최적화 */
+:root {
+  --primary-color: #2196F3;
+  --secondary-color: #FF9800;
+  --accent-color: #4CAF50;
+  --text-color: #333;
+  --bg-color: #fff;
+  --border-color: #e8e8e8;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  /* 다크 모드 색상 */
+  --dark-primary-color: #1976D2;
+  --dark-secondary-color: #F57C00;
+  --dark-accent-color: #388E3C;
+  --dark-text-color: #e0e0e0;
+  --dark-bg-color: #1a1a1a;
+  --dark-border-color: #404040;
+  --dark-shadow-color: rgba(255, 255, 255, 0.1);
+}
+
+/* GPU 가속 활용 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* 애니메이션 최적화 */
+.smooth-animation {
+  will-change: transform, opacity;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 이미지 최적화 */
+.optimized-image {
+  max-width: 100%;
+  height: auto;
+  loading: lazy;
+  decoding: async;
+}
+
+/* AI Lab 테마 - 기존 스타일 개선 */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-color: var(--dark-text-color);
+    --bg-color: var(--dark-bg-color);
+    --border-color: var(--dark-border-color);
+    --shadow-color: var(--dark-shadow-color);
+  }
+}
+
+/* 성능 최적화된 카드 컴포넌트 */
+.performance-card {
+  background: var(--bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0); /* GPU 가속 */
+}
+
+.performance-card:hover {
+  transform: translateY(-4px) translateZ(0);
+  box-shadow: 0 8px 24px var(--shadow-color);
+  border-color: var(--primary-color);
+}
+
+/* 지연 로딩 이미지 */
+.lazy-image {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lazy-image.loaded {
+  opacity: 1;
+}
+
+/* 스켈레톤 로딩 */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 반응형 최적화 */
+@media screen and (max-width: 768px) {
+  .performance-card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
