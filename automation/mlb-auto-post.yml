@@ -1,0 +1,59 @@
+name: ⚾ MLB 시범경기 자동 포스트
+
+on:
+  schedule:
+    # 한국시간 기준 주요 시간대에 실행 (UTC 기준)
+    # 오전 6시 (KST) = 전날 밤 21:00 UTC → 미국 오후 경기 종료 후
+    - cron: '0 21 * * *'
+    # 오전 11시 (KST) = 02:00 UTC → 미국 야간 경기 종료 후
+    - cron: '0 2 * * *'
+    # 오후 4시 (KST) = 07:00 UTC → 낮 경기 업데이트
+    - cron: '0 7 * * *'
+
+  # 수동 실행 버튼 (GitHub Actions 탭에서 직접 실행 가능)
+  workflow_dispatch:
+
+jobs:
+  generate-mlb-post:
+    runs-on: ubuntu-latest
+
+    # 시범경기 기간에만 실행 (2월 20일 ~ 3월 25일)
+    # 이 조건을 없애면 연중 실행됨
+    if: |
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'schedule')
+
+    steps:
+      # 1. 레포 체크아웃
+      - name: 📥 레포 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2. Python 설치
+      - name: 🐍 Python 3.11 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 3. 필요한 패키지 설치
+      - name: 📦 패키지 설치
+        run: |
+          pip install requests anthropic
+
+      # 4. MLB 포스트 생성 스크립트 실행
+      - name: ⚾ MLB 포스트 생성
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: |
+          python automation/mlb_auto_post.py
+
+      # 5. 생성된 포스트 자동 커밋 & 푸시
+      - name: 📤 자동 커밋 & 배포
+        run: |
+          git config --local user.email "mlb-bot@jkimjoon70.github.io"
+          git config --local user.name "⚾ MLB Bot"
+          git add _posts/
+          # 변경사항이 있을 때만 커밋 (없으면 그냥 종료)
+          git diff --staged --quiet || git commit -m "⚾ MLB 시범경기 업데이트 - $(date '+%Y-%m-%d %H:%M KST' -d '+9 hours')"
+          git push
