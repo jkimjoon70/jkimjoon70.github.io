@@ -1,479 +1,166 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>독립 AI 실험실 - 실시간 대시보드</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            --warning-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --bg-tertiary: #f1f5f9;
-            --text-primary: #1e293b;
-            --text-secondary: #475569;
-            --border-color: #e2e8f0;
-            
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --radius-2xl: 1.5rem;
-            
-            --space-4: 1rem;
-            --space-6: 1.5rem;
-            --space-8: 2rem;
-            --space-12: 3rem;
-            
-            --transition-all: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>독립 AI 실험실 - 실시간 대시보드</title>
 
-        [data-theme="dark"] {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-tertiary: #334155;
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --border-color: #334155;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+body{
+  margin:0;
+  font-family:'Inter','Noto Sans KR',sans-serif;
+  background:#f4f6f9;
+  color:#1e293b;
+}
+header{
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;
+  text-align:center;
+  padding:50px 20px;
+}
+h1{margin:0;font-size:2.3rem;font-weight:800;}
+.subtitle{opacity:.9;margin-top:10px}
 
-        body {
-            font-family: 'Inter', 'Noto Sans KR', sans-serif;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            transition: var(--transition-all);
-        }
+.container{max-width:1100px;margin:auto;padding:30px 20px}
 
-        .dashboard-header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: var(--space-8) 0;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:20px;
+}
 
-        .dashboard-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-            animation: float 10s ease-in-out infinite;
-        }
+.card{
+  background:#fff;
+  padding:25px;
+  border-radius:16px;
+  box-shadow:0 10px 20px rgba(0,0,0,.05);
+  transition:.3s;
+}
+.card:hover{transform:translateY(-6px)}
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
+.value{font-size:2.2rem;font-weight:800;margin:10px 0}
+.label{color:#64748b}
 
-        .dashboard-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: var(--space-4);
-            position: relative;
-            z-index: 1;
-        }
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:.85rem;
+  color:#10b981;
+}
 
-        .dashboard-subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
-        }
+.activity{
+  margin-top:40px;
+  background:#fff;
+  padding:25px;
+  border-radius:16px;
+  box-shadow:0 10px 20px rgba(0,0,0,.05);
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--space-4);
-        }
+.activity-item{
+  padding:10px 0;
+  border-bottom:1px solid #eee;
+}
+.activity-item:last-child{border-bottom:none}
 
-        .dashboard-content {
-            padding: var(--space-12) 0;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--space-6);
-            margin-bottom: var(--space-12);
-        }
-
-        .stat-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-2xl);
-            padding: var(--space-8);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border-color);
-            transition: var(--transition-all);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--primary-gradient);
-            transform: scaleX(0);
-            transition: var(--transition-all);
-        }
-
-        .stat-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--space-4);
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-        }
-
-        .stat-icon.posts {
-            background: var(--primary-gradient);
-        }
-
-        .stat-icon.automation {
-            background: var(--accent-gradient);
-        }
-
-        .stat-icon.success {
-            background: var(--success-gradient);
-        }
-
-        .stat-icon.time {
-            background: var(--warning-gradient);
-            color: var(--text-primary);
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            margin-bottom: var(--space-2);
-        }
-
-        .stat-label {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .stat-change {
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-top: var(--space-2);
-        }
-
-        .stat-change.positive {
-            color: #10b981;
-        }
-
-        .stat-change.neutral {
-            color: var(--text-secondary);
-        }
-
-        .activity-section {
-            background: var(--bg-primary);
-            border-radius: var(--radius-2xl);
-            padding: var(--space-8);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border-color);
-            margin-bottom: var(--space-8);
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: var(--space-6);
-            color: var(--text-primary);
-        }
-
-        .activity-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-4);
-            padding: var(--space-4);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--space-4);
-            background: var(--bg-secondary);
-            transition: var(--transition-all);
-        }
-
-        .activity-item:hover {
-            background: var(--bg-tertiary);
-            transform: translateX(4px);
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary-gradient);
-            color: white;
-            font-size: 1.1rem;
-        }
-
-        .activity-content {
-            flex: 1;
-        }
-
-        .activity-title {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 2px;
-        }
-
-        .activity-time {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--bg-primary);
-            border: 2px solid var(--border-color);
-            color: var(--text-primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-lg);
-            transition: var(--transition-all);
-            z-index: 1000;
-        }
-
-        .theme-toggle:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border-color);
-            border-radius: 50%;
-            border-top-color: var(--text-primary);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard-title {
-                font-size: 2rem;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: var(--space-4);
-            }
-            
-            .stat-card {
-                padding: var(--space-6);
-            }
-        }
-    </style>
+.dark body{background:#0f172a;color:#e2e8f0}
+.dark .card,.dark .activity{background:#1e293b}
+</style>
 </head>
-<body data-theme="light">
-    <button class="theme-toggle" id="theme-toggle">
-        <i class="fas fa-moon"></i>
-    </button>
 
-    <header class="dashboard-header">
-        <div class="container">
-            <h1 class="dashboard-title">🤖 독립 AI 실험실</h1>
-            <p class="dashboard-subtitle">실시간 자동화 대시보드</p>
-        </div>
-    </header>
+<body>
 
-    <main class="dashboard-content">
-        <div class="container">
-            <!-- 통계 카드 -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon posts">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div class="status-indicator">
-                            <div class="status-dot"></div>
-                            <span>활성</span>
-                        </div>
-                    </div>
-                    <div class="stat-value" id="total-posts">47</div>
-                    <div class="stat-label">총 포스트</div>
-                    <div class="stat-change positive">+3 이번 주</div>
-                </div>
+<header>
+  <h1>🤖 독립 AI 실험실</h1>
+  <div class="subtitle">실시간 자동화 대시보드</div>
+</header>
 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon automation">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                    </div>
-                    <div class="stat-value" id="automation-runs">156</div>
-                    <div class="stat-label">자동화 실행</div>
-                    <div class="stat-change positive">+12 이번 달</div>
-                </div>
+<div class="container">
 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon success">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                    </div>
-                    <div class="stat-value">96%</div>
-                    <div class="stat-label">성공률</div>
-                    <div class="stat-change neutral">안정적 운영</div>
-                </div>
+<div class="grid">
 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon time">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                    </div>
-                    <div class="stat-value" id="time-saved">127.9시간</div>
-                    <div class="stat-label">절약된 시간</div>
-                    <div class="stat-change positive">매주 +5시간</div>
-                </div>
-            </div>
+<div class="card">
+<div class="status">● 활성</div>
+<div class="value" id="post-count">...</div>
+<div class="label">총 포스트</div>
+</div>
 
-            <!-- 최근 활동 -->
-            <div class="activity-section">
-                <h2 class="section-title">🔄 최근 자동화 활동</h2>
-                <div class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title">AI 콘텐츠 자동 생성 완료</div>
-                        <div class="activity-time">2시간 전</div>
-                    </div>
-                </div>
-                
-                <div class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title">SEO 최적화 자동 적용</div>
-                        <div class="activity-time">3시간 전</div>
-                    </div>
-                </div>
-                
-                <div class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-share-alt"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title">소셜미디어 자동 공유</div>
-                        <div class="activity-time">5시간 전</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+<div class="card">
+<div class="value" id="deploy-count">...</div>
+<div class="label">배포 횟수</div>
+</div>
 
-    <script>
-        // 다크모드 토글
-        const themeToggle = document.getElementById('theme-toggle');
-        const html = document.documentElement;
-        
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            const icon = themeToggle.querySelector('i');
-            icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        });
-        
-        // 저장된 테마 적용
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        html.setAttribute('data-theme', savedTheme);
-        const icon = themeToggle.querySelector('i');
-        icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        
-        console.log('📊 대시보드 로드 완료!');
-    </script>
+<div class="card">
+<div class="value" id="site-status">...</div>
+<div class="label">사이트 상태</div>
+</div>
+
+<div class="card">
+<div class="value" id="last-update">...</div>
+<div class="label">마지막 업데이트</div>
+</div>
+
+</div>
+
+<div class="activity">
+<h3>최근 커밋 활동</h3>
+<div id="activity-timeline">불러오는 중...</div>
+</div>
+
+</div>
+
+<script>
+const repoOwner="jkimjoon70";
+const repoName="jkimjoon70.github.io";
+const siteUrl="https://jkimjoon70.github.io";
+const api="https://api.github.com";
+
+async function loadDashboard(){
+
+  // 포스트 수
+  const posts = await fetch(`${api}/repos/${repoOwner}/${repoName}/contents/_posts`);
+  if(posts.ok){
+    const data = await posts.json();
+    document.getElementById("post-count").innerText=data.length;
+  }
+
+  // 배포 횟수
+  const deploy = await fetch(`${api}/repos/${repoOwner}/${repoName}/deployments`);
+  if(deploy.ok){
+    const d = await deploy.json();
+    document.getElementById("deploy-count").innerText=d.length;
+  }
+
+  // 사이트 상태
+  try{
+    await fetch(siteUrl,{mode:"no-cors"});
+    document.getElementById("site-status").innerText="Online";
+  }catch{
+    document.getElementById("site-status").innerText="Offline";
+  }
+
+  // 최근 커밋
+  const commits = await fetch(`${api}/repos/${repoOwner}/${repoName}/commits?per_page=5`);
+  if(commits.ok){
+    const c = await commits.json();
+    const html = c.map(x=>`
+      <div class="activity-item">
+        ${x.commit.message}<br>
+        <small>${x.commit.author.name}</small>
+      </div>
+    `).join("");
+    document.getElementById("activity-timeline").innerHTML=html;
+    document.getElementById("last-update").innerText=
+      new Date(c[0].commit.author.date).toLocaleDateString("ko-KR");
+  }
+}
+
+loadDashboard();
+setInterval(loadDashboard,300000);
+</script>
+
 </body>
 </html>
-클릭
-
-
