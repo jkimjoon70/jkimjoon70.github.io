@@ -2,10 +2,9 @@ name: ⚾ MLB 경기 종료 자동 포스트
 
 on:
   schedule:
-    # ⭐ 15분마다 실행 → 경기 종료 후 자동 포스팅
-    - cron: '*/15 * * * *'
+    # 10분마다 실행 → 경기 종료 감지
+    - cron: '*/10 * * * *'
 
-  # 수동 실행 버튼
   workflow_dispatch:
 
 jobs:
@@ -13,35 +12,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 레포 체크아웃
-      - name: 📥 Checkout repository
+      - name: 📥 레포 체크아웃
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Python 설치
-      - name: 🐍 Setup Python
+      - name: 🐍 Python 설치
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 패키지 설치
-      - name: 📦 Install packages
+      - name: 📦 패키지 설치
         run: |
-          pip install requests anthropic pillow
+          pip install requests anthropic pytz
 
-      # 포스트 생성 실행
-      - name: ⚾ Generate MLB Post
+      - name: ⚾ MLB 포스트 생성 실행
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python automation/mlb_auto_post.py
 
-      # 자동 커밋 & 푸시
-      - name: 📤 Commit & Push
+      - name: 📤 변경사항 커밋 & 푸시
         run: |
           git config --local user.email "mlb-bot@github.io"
-          git config --local user.name "⚾ MLB Bot"
+          git config --local user.name "MLB Bot"
+
           git add _posts/
-          git diff --staged --quiet || git commit -m "⚾ MLB 경기 결과 업데이트"
+
+          git diff --staged --quiet || git commit -m "⚾ MLB 경기 종료 자동 업데이트"
           git push
