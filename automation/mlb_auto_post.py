@@ -1,121 +1,150 @@
 import requests
-import os
 from datetime import datetime
-import pytz
-from anthropic import Anthropic
+import os
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
 
-KST = pytz.timezone("Asia/Seoul")
+# =========================
+# 팀 ID (MLB 공식 로고)
+# =========================
+TEAM_IDS = {
+    "Dodgers": 119,
+    "White Sox": 145,
+    "Padres": 135,
+    "Giants": 137,
+    "Yankees": 147,
+    "Red Sox": 111,
+    "Angels": 108,
+    "Cubs": 112,
+    "Mets": 121,
+}
 
-# 오늘 날짜
-today = datetime.now(KST).strftime("%Y-%m-%d")
+# =========================
+# 썸네일 생성
+# =========================
+def download_logo(team_id):
+    url = f"https://www.mlbstatic.com/team-logos/{team_id}.png"
+    r = requests.get(url)
+    return Image.open(BytesIO(r.content)).convert("RGBA")
 
-# MLB API
-url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}"
+def create_thumbnail(home_team, away_team, home_score, away_score):
+    width, height = 1200, 630
+    bg = Image.new("RGB", (width, height), (10, 20, 40))
 
-response = requests.get(url).json()
+    home_logo = download_logo(TEAM_IDS[home_team]).resize((220,220))
+    away_logo = download_logo(TEAM_IDS[away_team]).resize((220,220))
 
-games = response.get("dates", [])
-if not games:
-    print("경기 없음")
-    exit()
+    bg.paste(away_logo, (200,200), away_logo)
+    bg.paste(home_logo, (780,200), home_logo)
 
-games = games[0]["games"]
-
-print(f"📊 총 경기 수: {len(games)}")
-
-posts_created = 0
-
-
-def already_posted(game_id):
-    if not os.path.exists("_posts"):
-        return False
-
-    for file in os.listdir("_posts"):
-        if str(game_id) in file:
-            return True
-    return False
-
-
-def create_thumbnail(team1, team2):
-    return f"https://dummyimage.com/1200x675/0d1117/ffffff&text={team1}+vs+{team2}"
-
-
-def generate_post(game):
-    away = game["teams"]["away"]["team"]["name"]
-    home = game["teams"]["home"]["team"]["name"]
-
-    away_score = game["teams"]["away"]["score"]
-    home_score = game["teams"]["home"]["score"]
-
-    game_id = game["gamePk"]
-
-    title = f"{away} {away_score} : {home_score} {home}"
-    date_str = datetime.now(KST).strftime("%Y-%m-%d %H:%M")
-
-    thumbnail = create_thumbnail(away, home)
-
-    # Claude AI 요약 생성
-    client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-
-    prompt = f"""
-    MLB 경기 결과를 스포츠 기사 스타일로 한국어로 요약해 주세요.
-
-    경기:
-    {away} {away_score} - {home_score} {home}
-
-    ✔ 5문장 이내
-    ✔ 스포츠 뉴스 톤
-    ✔ 핵심 요약
-    """
-
-    message = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=300,
-        messages=[{"role": "user", "content": prompt}]
+    draw = ImageDraw.Draw(bg)
+    font = ImageFont.truetype(
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 80
     )
 
-    summary = message.content[0].text
+    score_text = f"{away_score} : {home_score}"
+    draw.text((470, 250), score_text, font=font, fill="white")
 
-    filename = f"_posts/{today}-{game_id}.md"
+    os.makedirs("assets/images", exist_ok=True)
+    filename = f"assets/images/{away_team}_vs_{home_team}.png"
+    bg.save(filename)
+
+    return filename
+
+# =========================
+# MLB 데이터 가져오기
+# =========================
+def get_games():
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+
+    url = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}"
+    data = requests.get(url).json()
+
+    games = []
+
+    if "dates" not in data:
+        return games
+
+    for game in data["dates"][0]["games"]:
+        status = game["status"]["detailedState"]
+
+        if status != "Final":
+            continue
+
+        home = game["teams"]["home"]["team"]["name"]
+        away = game["teams"]["away"]["team"]["name"]
+        home_score = game["teams"]["home"]["score"]
+        away_score = game["teams"]["away"]["score"]
+
+        games.append({
+            "home": home,
+            "away": away,
+            "home_score": home_score,
+            "away_score": away_score,
+        })
+
+    return games
+
+# =========================
+# 포스트 생성
+# =========================
+def create_post(game):
+    date_str = datetime.now().strftime("%Y-%m-%d")
+
+    title = f"{game['away']} vs {game['home']} 경기 결과"
+
+    filename = f"_posts/{date_str}-{game['away']}-{game['home']}.md"
+
+    if os.path.exists(filename):
+        print("이미 포스트 존재 → 스킵")
+        return
+
+    thumbnail = create_thumbnail(
+        game["home"],
+        game["away"],
+        game["home_score"],
+        game["away_score"]
+    )
 
     content = f"""---
 layout: post
 title: "{title}"
-date: {date_str}
-categories: [MLB]
-image: {thumbnail}
+date: {datetime.now().isoformat()}
+categories: mlb
+thumbnail: /{thumbnail}
 ---
+
+![thumbnail](/{thumbnail})
 
 ## ⚾ 경기 결과
 
-**{away} {away_score} : {home_score} {home}**
+**{game['away']} {game['away_score']} : {game['home_score']} {game['home']}**
 
----
+### 경기 요약
+- 최종 스코어: {game['away_score']} : {game['home_score']}
+- 경기 상태: 종료
+- 작성 시각: {datetime.now().strftime('%Y-%m-%d %H:%M')}
 
-{summary}
 """
 
     with open(filename, "w", encoding="utf-8") as f:
         f.write(content)
 
-    print(f"✅ 포스트 생성: {title}")
+    print("포스트 생성 완료:", filename)
 
+# =========================
+# 실행
+# =========================
+if __name__ == "__main__":
+    print("🔍 경기 데이터 확인 중...")
 
-for game in games:
+    games = get_games()
 
-    status = game["status"]["detailedState"]
-    game_id = game["gamePk"]
+    if not games:
+        print("종료된 경기 없음")
+        exit()
 
-    # 종료 경기만 처리
-    if status != "Final":
-        continue
+    for game in games:
+        create_post(game)
 
-    # 중복 방지
-    if already_posted(game_id):
-        print(f"⏭ 이미 포스팅됨: {game_id}")
-        continue
-
-    generate_post(game)
-    posts_created += 1
-
-print(f"📰 생성된 포스트 수: {posts_created}")
+    print("✅ 모든 경기 포스팅 완료")
