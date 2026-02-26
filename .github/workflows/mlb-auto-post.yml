@@ -1,14 +1,9 @@
-name: ⚾ MLB 시범경기 자동 포스트
+name: ⚾ MLB 경기 종료 자동 포스트
 
 on:
   schedule:
-    # 한국시간 기준 주요 시간대 실행
-    # 오전 6시 KST → 미국 경기 종료 후
-    - cron: '0 21 * * *'
-    # 오전 11시 KST → 야간 경기 종료 후
-    - cron: '0 2 * * *'
-    # 오후 4시 KST → 낮 경기 업데이트
-    - cron: '0 7 * * *'
+    # ⭐ 15분마다 실행 → 경기 종료 후 자동 포스팅
+    - cron: '*/15 * * * *'
 
   # 수동 실행 버튼
   workflow_dispatch:
@@ -18,35 +13,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ 레포 체크아웃
-      - name: 📥 레포 체크아웃
+      # 레포 체크아웃
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2️⃣ Python 설치
-      - name: 🐍 Python 3.11 설치
+      # Python 설치
+      - name: 🐍 Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 3️⃣ 패키지 설치
-      - name: 📦 패키지 설치
+      # 패키지 설치
+      - name: 📦 Install packages
         run: |
-          pip install requests anthropic
+          pip install requests anthropic pillow
 
-      # 4️⃣ MLB 포스트 생성
-      - name: ⚾ MLB 포스트 생성
+      # 포스트 생성 실행
+      - name: ⚾ Generate MLB Post
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python automation/mlb_auto_post.py
 
-      # 5️⃣ 자동 커밋 & 푸시
-      - name: 📤 자동 커밋 & 배포
+      # 자동 커밋 & 푸시
+      - name: 📤 Commit & Push
         run: |
-          git config --local user.email "mlb-bot@jkimjoon70.github.io"
+          git config --local user.email "mlb-bot@github.io"
           git config --local user.name "⚾ MLB Bot"
           git add _posts/
-          git diff --staged --quiet || git commit -m "⚾ MLB 시범경기 업데이트 - $(date '+%Y-%m-%d %H:%M KST' -d '+9 hours')"
+          git diff --staged --quiet || git commit -m "⚾ MLB 경기 결과 업데이트"
           git push
