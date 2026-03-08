@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>서비스 | 독립 AI 실험실</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d1a;
+    --surface: #13132a;
+    --surface2: #1a1a35;
+    --purple: #7c3aed;
+    --purple-light: #a855f7;
+    --blue: #3b82f6;
+    --cyan: #06b6d4;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: rgba(124,58,237,0.25);
+    --glow: rgba(124,58,237,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(124,58,237,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(59,130,246,0.1) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: rgba(13,13,26,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--purple-light);
+    text-decoration: none;
+  }
+
+  .nav-logo span { color: var(--text-muted); }
+
+  .nav-links { display: flex; gap: 0.25rem; }
+
+  .nav-links a {
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); background: var(--surface2); }
+  .nav-links a.active { color: var(--purple-light); background: rgba(124,58,237,0.15); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 5rem 2rem 4rem;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 1rem;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: rgba(124,58,237,0.1);
+    font-size: 0.8rem;
+    color: var(--purple-light);
+    margin-bottom: 1.5rem;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #fff 30%, var(--purple-light) 70%, var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ── SERVICES GRID ── */
+  .section {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 2rem 5rem;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--cyan);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 2.5rem;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .service-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .service-card:nth-child(1) { animation-delay: 0.1s; }
+  .service-card:nth-child(2) { animation-delay: 0.2s; }
+  .service-card:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--purple), var(--cyan));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px var(--glow);
+    border-color: rgba(124,58,237,0.5);
+  }
+
+  .service-card:hover::before { opacity: 1; }
+
+  .card-icon {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-tag {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 1rem;
+  }
+
+  .tag-hot { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+  .tag-new { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+  .tag-ai  { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-includes {
+    list-style: none;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-includes li {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 0.3rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-includes li::before {
+    content: '▸';
+    color: var(--purple-light);
+    font-size: 0.7rem;
+  }
+
+  .card-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .price-from { font-size: 0.8rem; color: var(--text-muted); }
+  .price-num  { font-size: 1.6rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--purple-light); }
+  .price-unit { font-size: 0.85rem; color: var(--text-muted); }
+
+  .card-cta {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .card-cta:hover { opacity: 0.85; transform: scale(0.98); }
+
+  /* ── PROCESS ── */
+  .process-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    position: relative;
+  }
+
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .step:nth-child(1) { animation-delay: 0.1s; }
+  .step:nth-child(2) { animation-delay: 0.2s; }
+  .step:nth-child(3) { animation-delay: 0.3s; }
+  .step:nth-child(4) { animation-delay: 0.4s; }
+
+  .step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--purple-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .step-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+
+  .step-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  .step-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ── CTA BANNER ── */
+  .cta-banner {
+    position: relative;
+    z-index: 1;
+    margin: 0 2rem 5rem;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 3rem 2.5rem;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(59,130,246,0.15));
+    border: 1px solid rgba(124,58,237,0.35);
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .cta-banner::after {
+    content: '✦';
+    position: absolute;
+    font-size: 12rem;
+    color: rgba(124,58,237,0.05);
+    top: -2rem; right: -2rem;
+    pointer-events: none;
+  }
+
+  .cta-banner h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+  }
+
+  .cta-banner p {
+    color: var(--text-muted);
+    margin-bottom: 1.75rem;
+    font-size: 0.95rem;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary:hover { opacity: 0.85; }
+
+  .btn-ghost {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+  }
+
+  .btn-ghost:hover { background: var(--surface2); }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-family: 'Space Mono', monospace;
+  }
+
+  footer a { color: var(--purple-light); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://jkimjoon70.github.io" class="nav-logo">
+    🤖 <span>독립 AI 실험실</span>
+  </a>
+  <div class="nav-links">
+    <a href="https://jkimjoon70.github.io">홈</a>
+    <a href="#">소개</a>
+    <a href="service.html" class="active">서비스</a>
+    <a href="#">포트폴리오</a>
+    <a href="#">연락하기</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">AI 자동화 가동 중</div>
+  <h1>AI로 만드는<br>디지털 콘텐츠</h1>
+  <p>ChatGPT와 AI 이미지 툴로 빠르고 퀄리티 높은<br>카드뉴스 · 상세페이지 · AI 아트를 제작합니다</p>
+</div>
+
+<div class="section">
+  <div class="section-label">// SERVICES</div>
+  <div class="section-title">제공 서비스</div>
+
+  <div class="services-grid">
+
+    <!-- 카드뉴스 -->
+    <div class="service-card">
+      <div class="card-icon">🃏</div>
+      <span class="card-tag tag-hot">HOT</span>
+      <div class="card-title">카드뉴스 제작</div>
+      <p class="card-desc">SNS용 카드뉴스를 AI 이미지와 카피라이팅으로 빠르게 제작합니다. 인스타그램, 블로그, 카카오 채널 최적화.</p>
+      <ul class="card-includes">
+        <li>카드 5~10장 구성</li>
+        <li>AI 이미지 + 텍스트 디자인</li>
+        <li>JPG/PNG 고해상도 납품</li>
+        <li>1회 수정 포함</li>
+      </ul>
+      <div class="card-price">
+        <span class="price-from">시작가</span>
+        <span class="price-num">50,000</span>
+        <span class="price-unit">원~</span>
+      </div>
+      <a href="https://open.kakao.com/me/cyberria75" class="card-cta">문의하기</a>
+    </div>
+
+    <!-- 상세페이지 -->
+    <div class="service-card">
+      <div class="card-icon">📄</div>
+      <span class="card-tag tag-hot">HOT</span>
+      <div class="card-title">상세페이지 제작</div>
+      <p class="card-desc">스마트스토어, 쿠팡, 와디즈용 상세페이지를 AI 이미지와 설득력 있는 카피로 제작합니다.</p>
+      <ul class="card-includes">
+        <li>상품 분석 & 기획 포함</li>
+        <li>AI 이미지 제작</li>
+        <li>PSD 또는 PNG 납품</li>
+        <li>구매 전환 카피라이팅</li>
+      </ul>
+      <div class="card-price">
+        <span class="price-from">시작가</span>
+        <span class="price-num">100,000</span>
+        <span class="price-unit">원~</span>
+      </div>
+      <a href="https://open.kakao.com/me/cyberria75" class="card-cta">문의하기</a>
+    </div>
+
+    <!-- AI 아트 -->
+    <div class="service-card">
+      <div class="card-icon">🎨</div>
+      <span class="card-tag tag-ai">AI ART</span>
+      <div class="card-title">AI 이미지 · 아트워크</div>
+      <p class="card-desc">ChatGPT 이미지 생성으로 브랜드 맞춤 일러스트, 배경 이미지, 썸네일 등을 제작합니다.</p>
+      <ul class="card-includes">
+        <li>컨셉 기획 포함</li>
+        <li>고해상도 이미지 납품</li>
+        <li>상업적 이용 가능</li>
+        <li>다양한 스타일 선택</li>
+      </ul>
+      <div class="card-price">
+        <span class="price-from">시작가</span>
+        <span class="price-num">30,000</span>
+        <span class="price-unit">원~</span>
+      </div>
+      <a href="https://open.kakao.com/me/cyberria75" class="card-cta">문의하기</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROCESS -->
+<div class="section" style="padding-top:0">
+  <div class="section-label">// HOW IT WORKS</div>
+  <div class="section-title">작업 프로세스</div>
+
+  <div class="process-steps">
+    <div class="step">
+      <div class="step-num">STEP 01</div>
+      <div class="step-icon">💬</div>
+      <div class="step-title">상담 & 기획</div>
+      <div class="step-desc">요청 내용 파악 후 방향성 확정</div>
+    </div>
+    <div class="step">
+      <div class="step-num">STEP 02</div>
+      <div class="step-icon">🤖</div>
+      <div class="step-title">AI 초안 제작</div>
+      <div class="step-desc">ChatGPT로 이미지 & 카피 생성</div>
+    </div>
+    <div class="step">
+      <div class="step-num">STEP 03</div>
+      <div class="step-icon">✏️</div>
+      <div class="step-title">수정 & 다듬기</div>
+      <div class="step-desc">피드백 반영 후 퀄리티 완성</div>
+    </div>
+    <div class="step">
+      <div class="step-num">STEP 04</div>
+      <div class="step-icon">📦</div>
+      <div class="step-title">최종 납품</div>
+      <div class="step-desc">파일 전달 & 사용 가이드 제공</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-banner">
+  <h2>지금 바로 시작해볼까요?</h2>
+  <p>작은 작업도 환영합니다. 먼저 편하게 문의해주세요 😊</p>
+  <div class="cta-buttons">
+    <a href="https://open.kakao.com/me/cyberria75" class="btn-primary">카카오톡 문의</a>
+    <a href="mailto:cyberria75@naver.com" class="btn-ghost">이메일 보내기</a>
+  </div>
+</div>
+
+<footer>
+  © 2026 독립 AI 실험실 · <a href="https://jkimjoon70.github.io">jkimjoon70.gith
